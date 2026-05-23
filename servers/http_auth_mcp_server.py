@@ -42,6 +42,7 @@ import ipaddress
 import logging
 import sys
 import time
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import Any
@@ -51,6 +52,13 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 
 _log = logging.getLogger("http_auth_mcp_server")
+
+# Reject credentials that look like vulnerability identifiers — the agent
+# sometimes confuses a CWE/CVE label (e.g., "CWE-798" used as the standards
+# mapping for a finding) with an actual credential value. This is a known
+# LLM failure mode; structural rejection at the boundary forces the agent
+# to provide real credentials.
+_IDENTIFIER_PATTERN = re.compile(r"^(CWE|CVE|CAPEC|CPE)-\d+", re.IGNORECASE)
 
 # ---- Constants -------------------------------------------------------------
 
@@ -115,6 +123,13 @@ def _validate_credential(value: str, name: str) -> str:
         msg = (
             f"{name} exceeds maximum length ({len(value)} > "
             f"{_MAX_CREDENTIAL_LENGTH}); likely the wrong shape of argument"
+        )
+        raise ValueError(msg)
+    if _IDENTIFIER_PATTERN.match(value):
+        msg = (
+            f"{name} '{value}' looks like a vulnerability identifier "
+            f"(CWE/CVE/CAPEC/CPE), not a credential. Use actual credentials "
+            f"like 'admin/admin' or 'openplc/openplc' instead."
         )
         raise ValueError(msg)
     return value
