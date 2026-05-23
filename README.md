@@ -16,10 +16,6 @@ pathfinder-mcp-servers/
 │   ├── <server-name>/    # Each server in its own directory
 │   │   ├── README.md     # Server-specific documentation
 │   │   ├── server.py     # MCP server entry point
-│   │   ├── tools/        # Tool definitions
-│   │   └── tests/        # Server-specific tests
-│   └── ...
-├── shared/               # Shared utilities across servers
 ├── SECURITY.md           # Security policy and vulnerability reporting
 ├── CODE_OF_CONDUCT.md    # Contributor code of conduct
 ├── CHANGELOG.md          # Version history
