@@ -82,11 +82,6 @@ This repository is linked as a Git submodule within the private Pathfinder AI re
 
 This work forms part of an ongoing PhD at Keele University investigating agentic and generative AI for autonomous VAPT in OT environments.
 
-**Related publication:**
-> Sherwood, S., Ghanem, M. C., & Lacerda, M. J. — *Agentic and Generative AI for Autonomous VAPT: A Systematic Analysis*. Submitted to Information and Software Technology.
-
-**Publicly archived:** [OSF — osf.io/d7p8j](https://osf.io/d7p8j)
-
 ## License
 
 This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
