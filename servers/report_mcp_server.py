@@ -35,6 +35,12 @@ _log = logging.getLogger(__name__)
 # Pattern for CWE identifiers as accepted in standards_mapping entries.
 _CWE_PATTERN = re.compile(r"^CWE-\d+$")
 
+# In-memory dedup set for the current server session. Tracks normalised
+# finding titles to reject duplicates structurally rather than relying
+# on prompt-only dedup hints. Reset when the server process restarts
+# (i.e. once per engagement).
+_written_titles: set[str] = set()
+
 # Schema for a valid finding. Matches the vocabulary the LLM naturally
 # emits during the Report phase.
 FINDING_SCHEMA = {
@@ -179,8 +185,8 @@ class ReportServer:
     async def _handle_draft_finding(**kwargs: Any) -> list[TextContent]:
         """Handle the draft_finding (or write_finding) tool call.
 
-        Validates all arguments against FINDING_SCHEMA, then writes the
-        finding to the findings artifact.
+        Validates all arguments against FINDING_SCHEMA, checks for
+        duplicate titles, then writes the finding to the findings artifact.
         """
         errors = ReportServer._validate_finding(kwargs)
         if errors:
@@ -195,6 +201,30 @@ class ReportServer:
                     ),
                 )
             ]
+
+        # Structural dedup check — reject findings with titles already
+        # written in this engagement session. Uses the module-level
+        # _written_titles set which persists for the server's lifetime
+        # (one engagement run).
+        title = kwargs.get("title", "")
+        normalised_title = title.strip().lower()
+        if normalised_title in _written_titles:
+            msg = (
+                f"Duplicate finding rejected: a finding with title "
+                f"'{title}' has already been written in this engagement. "
+                f"Review prior iterations before drafting."
+            )
+            _log.info("Dedup rejected: %s", title)
+            return [
+                TextContent(
+                    type="text",
+                    text=json.dumps(
+                        {"error": msg, "written": False},
+                        indent=2,
+                    ),
+                )
+            ]
+        _written_titles.add(normalised_title)
 
         try:
             finding_id = str(uuid4())
