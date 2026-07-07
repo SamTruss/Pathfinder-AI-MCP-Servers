@@ -316,7 +316,7 @@ async def modbus_read_coils(
         client = await _open_client(host, port, timeout)
         try:
             response = await client.read_coils(
-                address=address, count=count, slave=unit_id
+                address=address, count=count, device_id=unit_id
             )
         finally:
             await _close_client(client)
@@ -368,7 +368,7 @@ async def modbus_read_discrete_inputs(
         client = await _open_client(host, port, timeout)
         try:
             response = await client.read_discrete_inputs(
-                address=address, count=count, slave=unit_id
+                address=address, count=count, device_id=unit_id
             )
         finally:
             await _close_client(client)
@@ -421,7 +421,7 @@ async def modbus_read_holding_registers(
         client = await _open_client(host, port, timeout)
         try:
             response = await client.read_holding_registers(
-                address=address, count=count, slave=unit_id
+                address=address, count=count, device_id=unit_id
             )
         finally:
             await _close_client(client)
@@ -473,7 +473,7 @@ async def modbus_read_input_registers(
         client = await _open_client(host, port, timeout)
         try:
             response = await client.read_input_registers(
-                address=address, count=count, slave=unit_id
+                address=address, count=count, device_id=unit_id
             )
         finally:
             await _close_client(client)
